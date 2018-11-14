@@ -10,6 +10,9 @@ class TodoList extends Component {
             inputValue: 'hello',//文本框中
             list: []//列表项
         }
+        this.handleInputChange = this.handleInputChange.bind(this)
+        this.handleBtnClick = this.handleBtnClick.bind(this)
+        this.handleItemDelete = this.handleItemDelete.bind(this)
     }
     render() {
         return(
@@ -21,51 +24,62 @@ class TodoList extends Component {
                 <input 
                     className="input"
                     value={this.state.inputValue}
-                    onChange={this.handleInputChange.bind(this)}
+                    onChange={this.handleInputChange}
                 />
-                <button onClick={this.handleBtnClick.bind(this)}>提交</button>
+                <button onClick={this.handleBtnClick}>提交</button>
                 <ul>
-                    {
-                        this.state.list.map((item,index)=>{
-                            return(
-                                <div>
-                                    <TodoItem 
-                                        content={item} 
-                                        index={index}
-                                        deleteItem={this.handleItemDelete.bind(this)} 
-                                    />
-                                    {/*<li 
-                                        key={index} 
-                                        onClick={this.handleItemDelete.bind(this,index)}
-                                        dangerouslySetInnerHTML={{__html: item}}
-                                    >
-                                    </li>*/}
-                                </div> 
-                            )
-                        })
-                    }
+                    {this.getTodoItem()}
                 </ul>
             </Fragment> 
             )
     }
-    handleInputChange(e) {
-        //调用的地方绑定this是为了将this指向的组件传递给此函数
-        this.setState({
-            inputValue: e.target.value
+    getTodoItem() {
+        return this.state.list.map((item,index)=>{
+            return(
+                <TodoItem 
+                    key={index}
+                    content={item} 
+                    index={index}
+                    deleteItem={this.handleItemDelete} 
+                /> 
+            )
         })
     }
+    handleInputChange(e) {
+        //调用的地方绑定this是为了将this指向的组件传递给此函数
+        //setState为一函数，异步。需要在外面先获取值再传进去
+        const value = e.target.value
+        //在新版react中setState为函数，在ES6中箭头函数可直接返回对象，不用return
+        this.setState(() => (
+            {inputValue: value}
+        ))
+        // this.setState({
+        //     inputValue: e.target.value
+        // })
+    }
     handleBtnClick() {
-        this.setState({
+        //setState有个参数prevState代表this.state即原来的值
+        this.setState((prevState) => ({
+            list: [...prevState.list, prevState.inputValue],//[...this.state.list, this.state.inputValue],
+            inputValue: ''
+        }))
+        /*this.setState({
             //将原list中展开放到数组中，再加上方框中的值
             list: [...this.state.list, this.state.inputValue],
             inputValue: ''//获取完文本框架内容后清空文本框
-       })
+       })*/
     }
     handleItemDelete(index){
-        const list = [...this.state.list]
+        /*const list = [...this.state.list]
         list.splice(index, 1)
         this.setState({
             list: list
+        })*/
+        //优化
+        this.setState((prevState) => {
+            const list = [...prevState.list];
+            list.splice(index, 1);
+            return {list}
         })
     }
 }
