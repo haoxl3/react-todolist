@@ -1,36 +1,54 @@
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
 
-class TodoList3 extends Component {
-    // constructor(props) {
-    //     super(props);
-    //     this.state = store.getState();
-    // }
-    render() {
-        return (
+//无状态组件
+const TodoList3 = (props) => {
+    const {inputvalue, changeInputValue, list, handleClick, handleDelete} = props;
+    return (
+        <div>
             <div>
-                <div>
-                    <input value={this.props.inputValue} onChange={this.props.changeInputValue}/>
-                    <button>提交</button>
-                </div>
-                <ul>
-                    <li>Dell</li>
-                </ul>
+                <input value={inputvalue} onChange={changeInputValue}/>
+                <button onClick={handleClick}>提交</button>
             </div>
-        )
-    }
-    handleInputChange(e){
-        console.log(e.target.value)
-    }
+            <ul>
+                {
+                    list.map((item, index) => {
+                        return <li onClick={handleDelete} key={index}>{item}</li>
+                    })
+                }
+            </ul>
+        </div>
+    )
 }
+// class TodoList3 extends Component {
+//     render() {
+//         const {inputvalue, changeInputValue, list, handleClick} = this.props;
+//         return (
+//             <div>
+//                 <div>
+//                     <input value={inputvalue} onChange={changeInputValue}/>
+//                     <button onClick={handleClick}>提交</button>
+//                 </div>
+//                 <ul>
+//                     {
+//                         list.map((item, index) => {
+//                             return <li onClick={this.props.handleDelete} key={index}>{item}</li>
+//                         })
+//                     }
+//                 </ul>
+//             </div>
+//         )
+//     }
+// }
 //它会映射到props.inputValue
 const mapStateToProps = (state) => {
     return {
-        inputValue: state.inputValue
+        inputValue: state.inputValue,
+        list: state.list 
     }
 }
 
-//store.dispatch方法挂载到props上
+//store.dispatch方法挂载到props上，它能够使props里的方法调用dispatch传给store
 const mapDispatchToProps = (dispatch) => {
     return {
         changeInputValue(e) {
@@ -40,6 +58,16 @@ const mapDispatchToProps = (dispatch) => {
             }
             // console.log(e.target.value)
             dispatch(action);
+        },
+        handleClick() {
+            const action = {
+                type: 'add_item'
+            }
+            //发给store,store再转发给reducer,然后再返回新数据
+            dispatch(action);
+        },
+        handleDelete() {
+
         }
     }
 }
